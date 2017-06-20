@@ -199,6 +199,7 @@
 		<module>52n-wps-ags</module>
 		<module>52n-wps-r</module>
 		<module>52n-wps-mc</module>
+		<module>wps-opso</module>
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

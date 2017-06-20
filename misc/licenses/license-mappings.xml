@@ -345,6 +345,25 @@
 		<license>GNU General Public License, version 2</license>
 	</artifact>
 
+	<artifact>
+		<groupId>geoprocessing</groupId>
+		<artifactId>GeoJModelBuilder-Core</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<license>GNU General Public License, version 2</license>
+	</artifact>
+		<artifact>
+		<groupId>geoprocessing</groupId>
+		<artifactId>GeoJModelBuilder-Engine</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<license>GNU General Public License, version 2</license>
+	</artifact>
+		<artifact>
+		<groupId>geoprocessing</groupId>
+		<artifactId>GeoJModelBuilder-Semantic</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<license>GNU General Public License, version 2</license>
+	</artifact>
+
 	<!-- http://docs.codehaus.org/display/PICO/License -->
 	<artifact>
 		<groupId>picocontainer</groupId>

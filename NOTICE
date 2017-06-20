@@ -49,8 +49,14 @@ This project includes:
   Abdera Bundle Jar under The Apache Software License, Version 2.0
   Activation 1.1 under The Apache Software License, Version 2.0
   AOP alliance under Public Domain
+  Apache Commons CLI under Apache License, Version 2.0
+  Apache Commons CSV under Apache License, Version 2.0
   Apache Commons Exec under Apache License, Version 2.0
-  Apache Commons Lang under The Apache Software License, Version 2.0
+  Apache Commons Lang under Apache License, Version 2.0
+  Apache Jena - Base Common Environment under The Apache Software License, Version 2.0
+  Apache Jena - Core under The Apache Software License, Version 2.0
+  Apache Jena - IRI under The Apache Software License, Version 2.0
+  Apache Jena - Shadowed external libraries under The Apache Software License, Version 2.0
   API interfaces under Lesser General Public License (LGPL)
   ArcGrid datasource module under Lesser General Public License (LGPL)
   authentication under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
@@ -75,6 +81,7 @@ This project includes:
   DataStore Support under Lesser General Public License (LGPL)
   decision under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
   Derby Engine under The Apache Software License, Version 2.0
+  dexx under MIT License
   dom4j under DOM4J license, http://dom4j.sourceforge.net/dom4j-1.6.1/license.html (BSD style)
   Dough Lea's util.concurrent package under Public domain, Sun Microsoystems
   ecore under Eclipse Public License (EPL)
@@ -85,6 +92,9 @@ This project includes:
   Filter Encoding Specification Model under Lesser General Public License (LGPL)
   Filter Encoding Specification XML Support under Lesser General Public License (LGPL)
   Filter XML Support under Lesser General Public License (LGPL)
+  GeoJModelBuilder-Core under GNU General Public License, version 2
+  GeoJModelBuilder-Engine under GNU General Public License, version 2
+  GeoJModelBuilder-Semantic under GNU General Public License, version 2
   GeoJSON Support under Lesser General Public License (LGPL)
   GeoTIFF grid coverage exchange module under Lesser General Public License (LGPL)
   GML2 XML Support under Lesser General Public License (LGPL)
@@ -146,6 +156,7 @@ This project includes:
   KML XML Support under Lesser General Public License (LGPL)
   kXML 2 under The BSD License
   libMath under GPL 2.0 license
+  log4j under The Apache Software License, Version 2.0
   Log4j Implemented Over SLF4J under Apache Software Licenses
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
@@ -174,6 +185,7 @@ This project includes:
   sextante_gui under GPL 2.0 license
   Shapefile module under Lesser General Public License (LGPL)
   SLF4J API Module under MIT License
+  SLF4J LOG4J-12 Binding under MIT License
   SLF4J Simple Binding under MIT License
   Spring Framework: Beans under The Apache Software License, Version 2.0
   Spring Framework: Context under The Apache Software License, Version 2.0
@@ -191,6 +203,7 @@ This project includes:
   WFS XML Support under Lesser General Public License (LGPL)
   Woodstox under The Apache Software License, Version 2.0
   WPS-Config under The Apache Software License, Version 2.0
+  wps-opso under GNU GENERAL PUBLIC LICENSE Version 2, June 1991
   Xalan Java under The Apache Software License, Version 2.0
   Xalan Java Serializer under The Apache Software License, Version 2.0
   xercesImpl under The Apache Software License, Version 2.0
