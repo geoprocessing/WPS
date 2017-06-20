@@ -1,0 +1,69 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:opmo="http://openprovenance.org/model/opmo#"
+    xmlns:opmw="http://www.opmw.org/ontology/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:prov="http://www.w3.org/ns/prov#"
+    xmlns:opso="http://www.gis.harvard.edu/opso/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#" > 
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/artifact/RasterBinaryProcess20170612214351858_OutputData">
+    <opmw:isGeneratedBy rdf:resource="http://www.gis.harvard.edu/opso/instance/process/RasterBinaryProcess20170612214351858"/>
+    <opso:hasMimeType>image/geotiff</opso:hasMimeType>
+    <opso:hasValue>http://202.114.118.181:8080/wps10/temp/f059d89f-91df-49f8-8f99-07da26cddffa/MOD09A1_20100619_band1_out_out.tif</opso:hasValue>
+    <rdfs:label xml:lang="en">OutputData</rdfs:label>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/InstanceDataVariable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/artifact/RasterMapcalcProcess20170612214130184_SecondInputData">
+    <opso:hasMimeType>image/geotiff</opso:hasMimeType>
+    <opso:hasValue>http://geos.whu.edu.cn:8080/datas/MOD09A1_20100619_band2.tif</opso:hasValue>
+    <rdfs:label xml:lang="en">SecondInputData</rdfs:label>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/InstanceDataVariable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/process/RasterBinaryProcess20170612214351858">
+    <opmw:uses rdf:resource="http://www.gis.harvard.edu/opso/instance/artifact/RasterBinaryProcess20170612214351858_InputData"/>
+    <rdfs:label xml:lang="en">RasterBinaryProcess</rdfs:label>
+    <opso:httpPost>http://geos.whu.edu.cn:8080/wps10/WebProcessingService</opso:httpPost>
+    <opso:instanceType>WPSProcess</opso:instanceType>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/WPSProcess"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/artifact/RasterMapcalcProcess20170612214130184_FirstInputData">
+    <opso:hasMimeType>image/geotiff</opso:hasMimeType>
+    <opso:hasValue>http://geos.whu.edu.cn:8080/datas/MOD09A1_20100619_band1.tif</opso:hasValue>
+    <rdfs:label xml:lang="en">FirstInputData</rdfs:label>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/InstanceDataVariable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/artifact/RasterMapcalcProcess20170612214130184_OutputData">
+    <opmw:isGeneratedBy rdf:resource="http://www.gis.harvard.edu/opso/instance/process/RasterMapcalcProcess20170612214130184"/>
+    <opso:hasMimeType>image/geotiff</opso:hasMimeType>
+    <opso:hasValue>http://202.114.118.181:8080/wps10/temp/5e71f1f2-5ed0-4848-8186-3ae92168dab7/MOD09A1_20100619_band1_out.tif</opso:hasValue>
+    <rdfs:label xml:lang="en">OutputData</rdfs:label>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/InstanceDataVariable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/workflow/Workflow20170620145726889">
+    <opso:hasStep rdf:resource="http://www.gis.harvard.edu/opso/instance/process/RasterBinaryProcess20170612214351858"/>
+    <opso:hasStep rdf:resource="http://www.gis.harvard.edu/opso/instance/process/RasterMapcalcProcess20170612214130184"/>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/WorkflowInstance"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/inoutport/Link20170620145726890">
+    <opso:hasTargetVar rdf:resource="http://www.gis.harvard.edu/opso/instance/artifact/RasterBinaryProcess20170612214351858_InputData"/>
+    <opso:hasSourceVar rdf:resource="http://www.gis.harvard.edu/opso/instance/artifact/RasterMapcalcProcess20170612214130184_OutputData"/>
+    <opso:hasTargetProcess rdf:resource="http://www.gis.harvard.edu/opso/instance/process/RasterBinaryProcess20170612214351858"/>
+    <opso:hasSourceProcess rdf:resource="http://www.gis.harvard.edu/opso/instance/process/RasterMapcalcProcess20170612214130184"/>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/InOutPort"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/process/RasterMapcalcProcess20170612214130184">
+    <opmw:uses rdf:resource="http://www.gis.harvard.edu/opso/instance/artifact/RasterMapcalcProcess20170612214130184_SecondInputData"/>
+    <opmw:uses rdf:resource="http://www.gis.harvard.edu/opso/instance/artifact/RasterMapcalcProcess20170612214130184_FirstInputData"/>
+    <rdfs:label xml:lang="en">RasterMapcalcProcess</rdfs:label>
+    <opso:httpPost>http://geos.whu.edu.cn:8080/wps10/WebProcessingService</opso:httpPost>
+    <opso:instanceType>WPSProcess</opso:instanceType>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/WPSProcess"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.gis.harvard.edu/opso/instance/artifact/RasterBinaryProcess20170612214351858_InputData">
+    <opso:hasMimeType>image/geotiff</opso:hasMimeType>
+    <opso:hasValue>{RasterMapcalcProcess#OutputData}</opso:hasValue>
+    <rdfs:label xml:lang="en">InputData</rdfs:label>
+    <rdf:type rdf:resource="http://www.gis.harvard.edu/opso/InstanceDataVariable"/>
+  </rdf:Description>
+</rdf:RDF>

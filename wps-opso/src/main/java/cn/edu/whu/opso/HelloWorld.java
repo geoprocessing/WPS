@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2017 Wuhan University
+ * 					  Center for Geographic Analysis, Harvard University
  * 
  * This program is free software; you can redistribute and/or modify it under 
  * the terms of the GNU General Public License version 2 as published by the 
@@ -13,10 +14,6 @@ package cn.edu.whu.opso;
 
 import com.geojmodelbuilder.core.instance.impl.WorkflowInstance;
 
-/**
- * Hello world!
- *
- */
 public class HelloWorld 
 {
     public static void main( String[] args )

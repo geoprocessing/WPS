@@ -1,5 +1,6 @@
 ﻿Copyright (C) 2017 Wuhan University
-
+				   Center for Geographic Analysis, Harvard University
+				   
 This program is free software; you can redistribute and/or modify it under 
 the terms of the GNU General Public License version 2 as published by the 
 Free Software Foundation.
