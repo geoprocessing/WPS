@@ -69,11 +69,11 @@
 	<servlet>
 		<servlet-name>wpsServlet</servlet-name>
 		<servlet-class>org.n52.wps.server.WebProcessingService</servlet-class>
-		<load-on-startup>0</load-on-startup>
 		<init-param>
 			<param-name>wps.config.file</param-name>
 			<param-value>${wps.config.file}</param-value>
 		</init-param>
+		<load-on-startup>0</load-on-startup>
 	</servlet>
 	<servlet>
 		<servlet-name>retrieveResultServlet</servlet-name>

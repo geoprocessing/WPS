@@ -589,6 +589,11 @@
 			</dependency>
 			<dependency>
 				<groupId>${project.groupId}</groupId>
+				<artifactId>wps-opso</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>52n-wps-commons</artifactId>
 				<version>${project.version}</version>
 			</dependency>

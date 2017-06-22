@@ -149,6 +149,9 @@ public class WebProcessingService extends HttpServlet {
         
         BASE_DIR = this.getServletContext().getRealPath("");
 
+        /*OPSOConfig.initialize(BASE_DIR);
+        LOGGER.info("OPSO initialized");*/
+        
         Parser[] parsers = WPSConfig.getInstance().getActiveRegisteredParser();
         ParserFactory.initialize(parsers);
 

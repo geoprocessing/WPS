@@ -70,7 +70,6 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>52n-wps-io-impl</artifactId>
 		</dependency>
-		
 <!-- 		<dependency> -->
 <!-- 			<groupId>${project.groupId}</groupId> -->
 <!-- 			<artifactId>52n-wps-mc</artifactId> -->
