@@ -2,6 +2,7 @@ package cn.edu.whu.opso.algorithm;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.n52.wps.server.ExceptionReport;
 import org.n52.wps.server.IAlgorithm;
 
 import cn.edu.whu.opso.OPSOConfig;
+import cn.edu.whu.opso.io.OPSODataBinding;
 
 /**
  * Refer to AbstractObservableAlgorithm.
@@ -21,7 +23,8 @@ public class OPSOInstanceAlgorithm implements IAlgorithm {
 
 	private String identifier;
 	private ProcessDescriptionType processDescription;
-
+	private List<String> errList = new ArrayList<String>();
+	
 	public OPSOInstanceAlgorithm(String identifier) {
 		this.identifier = identifier;
 	}
@@ -29,12 +32,16 @@ public class OPSOInstanceAlgorithm implements IAlgorithm {
 	@Override
 	public Map<String, IData> run(Map<String, List<IData>> inputData)
 			throws ExceptionReport {
+		for(String key:inputData.keySet()){
+			System.out.println(key);
+		}
+		
 		return null;
 	}
 
 	@Override
 	public List<String> getErrors() {
-		return null;
+		return this.errList;
 	}
 
 	@Override
@@ -62,16 +69,16 @@ public class OPSOInstanceAlgorithm implements IAlgorithm {
 
 	@Override
 	public boolean processDescriptionIsValid() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public Class<?> getInputDataType(String id) {
-		return null;
+		return OPSODataBinding.class;
 	}
 
 	@Override
 	public Class<?> getOutputDataType(String id) {
-		return null;
+		return OPSODataBinding.class;
 	}
 }

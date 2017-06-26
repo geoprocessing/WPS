@@ -80,6 +80,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
+import cn.edu.whu.opso.io.OPSOParser;
+
 import com.google.common.primitives.Doubles;
 
 /**
@@ -1206,9 +1208,13 @@ public class InputHandler {
 //					}
 //			}
 
-
-
-			IData parsedInputData = parser.parse(stream, mimeType, schema);
+			IData parsedInputData  = null;
+			//transfer the url
+			if (parser instanceof OPSOParser) {
+				parsedInputData = ((OPSOParser)parser).parse(dataURLString, mimeType, schema);
+			}else {
+				parsedInputData = parser.parse(stream, mimeType, schema);
+			}
 
 			//enable maxxoccurs of parameters with the same name.
 			if(inputData.containsKey(inputID)) {
