@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.opengis.wps.x100.DescriptionType;
+import net.opengis.wps.x100.GetCapabilitiesDocument.GetCapabilities;
 import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessDescriptionType;
@@ -28,6 +29,7 @@ public class WorkflowInstanceToProcess {
 	private String workflowFile="";
 	private StringBuffer errBuf;
 	private ProcessDescriptionType workflowDescriptionType;
+	private IWorkflowInstance workflowInstance;
 	
 	public WorkflowInstanceToProcess(String file) {
 		this.workflowFile = file;
@@ -61,15 +63,65 @@ public class WorkflowInstanceToProcess {
 		return true;
 	}
 	
+	//parse the OPSO documet to workflow instance
+	public IWorkflowInstance getWorkflowInstance(){
+		if(this.workflowInstance == null){
+			RDF2Instance rdf2Instance = new RDF2Instance();
+			this.workflowInstance= rdf2Instance.parse(this.workflowFile);	
+		}
+		return this.workflowInstance;
+	}
+	
+	public List<IInputParameter> getAllValidInputs(){
+		List<IInputParameter> inputs = new ArrayList<IInputParameter>();
+		
+		if (getWorkflowInstance() == null) 
+			return null;
+		
+		
+		for(IProcessInstance processInstance:getWorkflowInstance().getProcesses()){
+			if(!(processInstance instanceof WPSProcess))
+				continue;
+			
+			WPSProcess wpsProcess = (WPSProcess)processInstance;
+			
+			List<IInputParameter> wpsInputs = getValidInputs(wpsProcess);
+			if(wpsInputs.size()!=0){
+				inputs.addAll(wpsInputs);
+			}
+		}
+		
+		return inputs;
+	}
+	
+	public List<IOutputParameter> getAllValidOutputs(){
+		List<IOutputParameter> outputs = new ArrayList<IOutputParameter>();
+		
+		if (getWorkflowInstance() == null) 
+			return null;
+		
+		
+		for(IProcessInstance processInstance:getWorkflowInstance().getProcesses()){
+			if(!(processInstance instanceof WPSProcess))
+				continue;
+			
+			WPSProcess wpsProcess = (WPSProcess)processInstance;
+			
+			List<IOutputParameter> wpsInputs = getValidOutputs(wpsProcess);
+			if(wpsInputs.size()!=0){
+				outputs.addAll(wpsInputs);
+			}
+		}
+		
+		return outputs;
+	}
 	
 	//identify the inputs and outputs
 	//not consider the situation that parameters from different processes have the same name.
 	private boolean generateDescriptionType(){
 		//initialize when the server starts
-		RDF2Instance rdf2Instance = new RDF2Instance();
-		IWorkflowInstance workflowInstance= rdf2Instance.parse(this.workflowFile);
 		
-		if(!isValid(workflowInstance))
+		if(!isValid(getWorkflowInstance()))
 			return false;
 		
 		Map<WPSProcess, List<IParameter>> processParamMap = new HashMap<WPSProcess, List<IParameter>>();
@@ -226,6 +278,7 @@ public class WorkflowInstanceToProcess {
 	public String getErrInfo(){
 		return this.errBuf.toString();
 	}
+	
 	
 	public static void main(String[] args){
 		String instance = WorkflowInstanceToProcess.class.getResource("/examples/water_extraction_instance.rdf").getPath();

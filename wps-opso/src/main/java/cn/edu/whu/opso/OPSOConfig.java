@@ -28,6 +28,10 @@ public class OPSOConfig {
 		return new File(pathname);
 	}
 	
+	public String getOPSOInstance(String name){
+		return this.localPath + File.separator + name +".rdf";
+	}
+	
 	public String getDescriptionPath(){
 		return this.localPath;
 	}

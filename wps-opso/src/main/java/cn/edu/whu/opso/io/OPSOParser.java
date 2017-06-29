@@ -20,8 +20,7 @@ public class OPSOParser extends AbstractParser {
 
 		complexData.setValue(reference);
 		
-		OPSODataBinding opsoDataBinding = new OPSODataBinding(complexData);
-		return opsoDataBinding;
+		return new OPSODataBinding(complexData);
 	}
 	
 	@Override
