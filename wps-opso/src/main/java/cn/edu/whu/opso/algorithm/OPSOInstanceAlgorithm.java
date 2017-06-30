@@ -3,6 +3,7 @@ package cn.edu.whu.opso.algorithm;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,10 +67,16 @@ public class OPSOInstanceAlgorithm implements IAlgorithm {
 
  		System.out.println("finished");
  		
+ 		//only consider complex data type.
+ 		Map<String, IData> results = new HashMap<String, IData>();
  		for(IOutputParameter output:outputs){
- 			System.out.println(output.getData().getValue());
+ 			com.geojmodelbuilder.core.data.IData data = output.getData();
+ 			if(data instanceof IComplexData){
+ 				OPSODataBinding opsoDataBinding = new OPSODataBinding((IComplexData)data);
+ 				results.put(output.getName(), opsoDataBinding);
+ 			}
  		}
-		return null;
+		return results;
 	}
 	
 	

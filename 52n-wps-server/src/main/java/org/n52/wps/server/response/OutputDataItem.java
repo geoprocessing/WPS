@@ -54,7 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
 import org.n52.wps.io.BasicXMLTypeFactory;
 import org.n52.wps.io.IOHandler;
 import org.n52.wps.io.data.IBBOXData;
@@ -63,6 +62,8 @@ import org.n52.wps.io.data.binding.literal.AbstractLiteralDataBinding;
 import org.n52.wps.server.ExceptionReport;
 import org.n52.wps.server.database.DatabaseFactory;
 import org.n52.wps.server.database.IDatabase;
+
+import cn.edu.whu.opso.io.OPSOGenerator;
 
 import com.google.common.primitives.Doubles;
 
@@ -206,6 +207,15 @@ public class OutputDataItem extends ResponseData {
 		if (mimeType != null) {
 			outReference.setMimeType(mimeType);
 		}
+		
+		// return the href directly 
+		if (generator instanceof OPSOGenerator) {
+			String reference = ((OPSOGenerator)generator).getHref(super.obj);
+			outReference.setHref(reference);
+			this.mimeType = "text/xml";
+			return;
+		}
+		
 		IDatabase db = DatabaseFactory.getDatabase();
 		String storeID = reqID + "" + id;
 
