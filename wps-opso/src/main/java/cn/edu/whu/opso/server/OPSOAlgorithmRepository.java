@@ -15,6 +15,7 @@ import java.util.Properties;
 
 import net.opengis.wps.x100.ProcessDescriptionType;
 
+import org.apache.bcel.generic.ALOAD;
 import org.n52.wps.server.IAlgorithm;
 import org.n52.wps.server.IAlgorithmRepository;
 
@@ -48,6 +49,16 @@ public class OPSOAlgorithmRepository implements IAlgorithmRepository {
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		}
+		
+		initializeAlgorithms();
+	}
+	
+	private void initializeAlgorithms(){
+		for(Object key:repositoryProperties.keySet()){
+			OPSOInstanceAlgorithm algorithm = new OPSOInstanceAlgorithm(key.toString());
+			algorithm.getWorkflowInstance();
+			this.algorithms.add(algorithm);
 		}
 	}
 	
