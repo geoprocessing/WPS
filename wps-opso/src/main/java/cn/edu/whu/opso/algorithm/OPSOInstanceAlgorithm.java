@@ -143,7 +143,7 @@ public class OPSOInstanceAlgorithm implements IAlgorithm {
 		return this.workflowInstanceToProcess;
 	}
 	
-	private IWorkflowInstance getWorkflowInstance(){
+	public IWorkflowInstance getWorkflowInstance(){
 		if (this.workflowInstance == null) {
 			this.workflowInstance = getInstanceToProcess().getWorkflowInstance();
 		}
