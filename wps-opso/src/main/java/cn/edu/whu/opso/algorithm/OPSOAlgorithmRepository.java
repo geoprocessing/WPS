@@ -1,4 +1,4 @@
-package cn.edu.whu.opso.server;
+package cn.edu.whu.opso.algorithm;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,12 +15,10 @@ import java.util.Properties;
 
 import net.opengis.wps.x100.ProcessDescriptionType;
 
-import org.apache.bcel.generic.ALOAD;
 import org.n52.wps.server.IAlgorithm;
 import org.n52.wps.server.IAlgorithmRepository;
 
 import cn.edu.whu.opso.OPSOConfig;
-import cn.edu.whu.opso.algorithm.OPSOInstanceAlgorithm;
 
 public class OPSOAlgorithmRepository implements IAlgorithmRepository {
 
@@ -29,6 +27,7 @@ public class OPSOAlgorithmRepository implements IAlgorithmRepository {
 	private boolean changed = false;
 	private List<IAlgorithm> algorithms;
 	private Map<String, ProcessDescriptionType> descriptionMap;
+	private static OPSOAlgorithmRepository instance;
 
 	public OPSOAlgorithmRepository() {
 		this.repositoryPath = OPSOConfig.getInstance().getAlgorithmRepositoy();
@@ -51,7 +50,16 @@ public class OPSOAlgorithmRepository implements IAlgorithmRepository {
 			e.printStackTrace();
 		}
 		
+		instance = this;
+		
 		initializeAlgorithms();
+	}
+	
+	public static OPSOAlgorithmRepository getInstance(){
+		if(instance == null)
+			instance = new OPSOAlgorithmRepository();
+		
+		return instance;
 	}
 	
 	private void initializeAlgorithms(){

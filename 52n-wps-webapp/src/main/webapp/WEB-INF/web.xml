@@ -80,6 +80,12 @@
 		<servlet-class>org.n52.wps.server.RetrieveResultServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	<servlet>
+    	<display-name>fileUploadServlet</display-name>
+    	<servlet-name>fileUploadServlet</servlet-name>
+    	<servlet-class>cn.edu.whu.opso.server.FileUploadServlet</servlet-class>
+  	</servlet>
+	
 	<servlet-mapping>
 		<servlet-name>wpsServlet</servlet-name>
 		<url-pattern>/WebProcessingService</url-pattern>
@@ -88,6 +94,10 @@
 		<servlet-name>retrieveResultServlet</servlet-name>
 		<url-pattern>/RetrieveResultServlet</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+    	<servlet-name>fileUploadServlet</servlet-name>
+    	<url-pattern>/upload</url-pattern>
+  	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>/index.html</welcome-file>
 	</welcome-file-list>
