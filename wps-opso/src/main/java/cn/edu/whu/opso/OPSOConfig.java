@@ -6,14 +6,14 @@ import org.n52.wps.commons.WPSConfig;
 
 public class OPSOConfig {
 	private static OPSOConfig instance;
-	private String opso_folder = "opso";
+	public static String OPSO_FOLDER = "opso";
 	private String repository_name = "Algorithms.properties";
 	
 	//the location of the web app.
 	private String localPath;
 	
 	private OPSOConfig(){
-		this.localPath = WPSConfig.getConfigDir() + opso_folder;
+		this.localPath = WPSConfig.getConfigDir() + OPSO_FOLDER;
 	}
 	
 	public static OPSOConfig getInstance(){
