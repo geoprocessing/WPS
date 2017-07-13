@@ -165,7 +165,7 @@ public class WorkflowInstanceToProcess {
 			this.errBuf.append("failed to get the process description template.");
 			return false;
 		}
-		
+		processDescriptionType.addNewIdentifier().setStringValue(this.processName);;
 		List<InputDescriptionType> inputDescriptionTypes = new ArrayList<InputDescriptionType>();
 		List<OutputDescriptionType> outputDescriptionTypes = new ArrayList<OutputDescriptionType>();
 		

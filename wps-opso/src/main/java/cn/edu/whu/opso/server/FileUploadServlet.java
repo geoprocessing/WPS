@@ -131,6 +131,7 @@ public class FileUploadServlet extends HttpServlet {
         try {
 			fileItem.write(storeFile);
 			WorkflowInstanceToProcess workflowInstanceToProcess = new WorkflowInstanceToProcess(filePath);
+			workflowInstanceToProcess.setProcessName(fileName);
 			boolean saved = workflowInstanceToProcess.save(new File(uploadPath + File.separator + fileName + ".xml"));
 			if(saved){
 				OPSOAlgorithmRepository.getInstance().addAlgorithm(fileName);
