@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,10 +38,40 @@ import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.io.IOUtils;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.n52.wps.commons.WPSConfig;
+import org.n52.wps.commons.XMLBeansHelper;
+import org.n52.wps.commons.context.ExecutionContext;
+import org.n52.wps.commons.context.ExecutionContextFactory;
+import org.n52.wps.commons.context.OutputTypeWrapper;
+import org.n52.wps.io.data.IComplexData;
+import org.n52.wps.io.data.IData;
+import org.n52.wps.server.AbstractTransactionalAlgorithm;
+import org.n52.wps.server.ExceptionReport;
+import org.n52.wps.server.IAlgorithm;
+import org.n52.wps.server.RepositoryManagerSingletonWrapper;
+import org.n52.wps.server.database.DatabaseFactory;
+import org.n52.wps.server.observerpattern.IObserver;
+import org.n52.wps.server.observerpattern.ISubject;
+import org.n52.wps.server.response.ExecuteResponse;
+import org.n52.wps.server.response.ExecuteResponseBuilderV100;
+import org.n52.wps.server.response.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import net.opengis.ows.x11.BoundingBoxType;
 import net.opengis.ows.x11.ExceptionType;
@@ -60,33 +90,6 @@ import net.opengis.wps.x100.ProcessDescriptionType;
 import net.opengis.wps.x100.ResponseDocumentType;
 import net.opengis.wps.x100.ResponseFormType;
 import net.opengis.wps.x100.StatusType;
-
-import org.apache.commons.collections.map.CaseInsensitiveMap;
-import org.apache.commons.io.IOUtils;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.n52.wps.commons.WPSConfig;
-import org.n52.wps.commons.XMLBeansHelper;
-import org.n52.wps.commons.context.ExecutionContext;
-import org.n52.wps.commons.context.ExecutionContextFactory;
-import org.n52.wps.io.data.IComplexData;
-import org.n52.wps.io.data.IData;
-import org.n52.wps.server.AbstractTransactionalAlgorithm;
-import org.n52.wps.server.RepositoryManagerSingletonWrapper;
-import org.n52.wps.server.ExceptionReport;
-import org.n52.wps.server.IAlgorithm;
-import org.n52.wps.server.RepositoryManager;
-import org.n52.wps.server.database.DatabaseFactory;
-import org.n52.wps.server.observerpattern.IObserver;
-import org.n52.wps.server.observerpattern.ISubject;
-import org.n52.wps.server.response.ExecuteResponse;
-import org.n52.wps.server.response.ExecuteResponseBuilderV100;
-import org.n52.wps.server.response.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * Handles an ExecuteRequest
@@ -620,16 +623,25 @@ public class ExecuteRequestV100 extends ExecuteRequest implements IObserver  {
         Map<String, List<IData>> inputMap = null;
         try {
             ExecutionContext context;
+            UUID jobId = getUniqueId();
             if (getExecute().isSetResponseForm()) {
-                context = getExecute().getResponseForm().isSetRawDataOutput() ?
-                        new ExecutionContext(getExecute().getResponseForm().getRawDataOutput()) :
-                        new ExecutionContext(Arrays.asList(getExecute().getResponseForm().getResponseDocument().getOutputArray()));
+
+                OutputTypeWrapper outputTypeWrapper = new OutputTypeWrapper();
+
+                if(getExecute().getResponseForm().isSetRawDataOutput()){
+                    outputTypeWrapper.setWps100OutputDefinitionTypes(Arrays.asList(new OutputDefinitionType[]{getExecute().getResponseForm().getRawDataOutput()}));
+                }else{
+                    outputTypeWrapper.setWps100OutputDefinitionTypes(Arrays.asList(getExecute().getResponseForm().getResponseDocument().getOutputArray()));
+                }
+
+
+                context =  new ExecutionContext(outputTypeWrapper, jobId);
             }
             else {
-                context = new ExecutionContext();
+                context = new ExecutionContext(jobId);
             }
 
-                // register so that any function that calls ExecuteContextFactory.getContext() gets the instance registered with this thread
+            // register so that any function that calls ExecuteContextFactory.getContext() gets the instance registered with this thread
             ExecutionContextFactory.registerContext(context);
 
             LOGGER.debug("started with execution");

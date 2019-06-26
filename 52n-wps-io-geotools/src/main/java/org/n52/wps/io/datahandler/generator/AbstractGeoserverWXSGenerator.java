@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 - 2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007 - 2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,12 +47,17 @@
  */
 package org.n52.wps.io.datahandler.generator;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.UUID;
+
 import org.n52.wps.commons.WPSConfig;
+import org.n52.wps.io.data.IData;
 import org.n52.wps.io.data.binding.complex.GTRasterDataBinding;
 import org.n52.wps.io.data.binding.complex.GeotiffBinding;
 import org.n52.wps.webapp.api.types.ConfigurationEntry;
 
-public abstract class AbstractGeoserverWXSGenerator extends AbstractGenerator {
+public class AbstractGeoserverWXSGenerator extends AbstractGenerator {
 
     protected String username;
     protected String password;
@@ -88,6 +93,33 @@ public abstract class AbstractGeoserverWXSGenerator extends AbstractGenerator {
             }
         }
 
+    }
+
+    /**
+     * Inserts a random string between file name and suffix.
+     *
+     * @param fileName the file name to make unique
+     * @return a unique file name
+     */
+    protected String makeUniqueFileName(String fileName) {
+        int suffixStartIdx = fileName.lastIndexOf(".");
+        boolean hasSuffix = suffixStartIdx >= 0;
+        String suffix = hasSuffix
+                ? fileName.substring(suffixStartIdx)
+                : "";
+        String rawName = hasSuffix
+                ? fileName.substring(0, suffixStartIdx)
+                : fileName;
+        String uniquePart = UUID.randomUUID().toString().substring(0, 5);
+        return rawName + "_" + uniquePart + suffix;
+    }
+
+    @Override
+    public InputStream generateStream(IData data,
+            String mimeType,
+            String schema) throws IOException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

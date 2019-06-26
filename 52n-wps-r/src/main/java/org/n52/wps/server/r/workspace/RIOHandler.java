@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2010-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
+import org.n52.wps.commons.context.ExecutionContext;
+import org.n52.wps.commons.context.ExecutionContextFactory;
 import org.n52.wps.io.IOUtils;
 import org.n52.wps.io.data.GenericFileData;
 import org.n52.wps.io.data.GenericFileDataConstants;
@@ -51,6 +54,7 @@ import org.n52.wps.io.data.binding.complex.GTRasterDataBinding;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.wps.io.data.binding.complex.GenericFileDataBinding;
 import org.n52.wps.io.data.binding.complex.GenericFileDataWithGTBinding;
+import org.n52.wps.io.data.binding.complex.JTSGeometryBinding;
 import org.n52.wps.io.data.binding.literal.AbstractLiteralDataBinding;
 import org.n52.wps.io.data.binding.literal.LiteralBooleanBinding;
 import org.n52.wps.io.data.binding.literal.LiteralByteBinding;
@@ -78,6 +82,9 @@ import org.rosuda.REngine.Rserve.RFileOutputStream;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class RIOHandler {
 
@@ -241,6 +248,24 @@ public class RIOHandler {
             return parseLiteralInput(iclass, ivalue.getPayload());
         }
 
+        if (ivalue instanceof JTSGeometryBinding) {
+            JTSGeometryBinding geometry = (JTSGeometryBinding) ivalue;
+            Geometry envelope = geometry.getPayload().getEnvelope();
+//            if (envelope.getBoundaryDimension() == 1) {
+//                Coordinate coordinate = envelope.getCoordinate();
+//                String x = Double.toString(coordinate.getOrdinate(0));
+//                String y = Double.toString(coordinate.getOrdinate(1));
+//                return "\"" + x + "," + x + "," + y + "," + y + "\"";
+//            } else {
+                Coordinate[] coordinates = envelope.getCoordinates();
+                String min_x = Double.toString(coordinates[0].getOrdinate(Coordinate.X));
+                String min_y = Double.toString(coordinates[0].getOrdinate(Coordinate.Y));
+                String max_x = Double.toString(coordinates[2].getOrdinate(Coordinate.X));
+                String max_y = Double.toString(coordinates[2].getOrdinate(Coordinate.Y));
+                return "\"" + min_x + "," + max_x + "," + min_y + "," + max_y + "\"";
+//            }
+        }
+
         if (ivalue instanceof GenericFileDataWithGTBinding) {
             GenericFileDataWithGT value = (GenericFileDataWithGT) ivalue.getPayload();
 
@@ -373,20 +398,21 @@ public class RIOHandler {
 
         RAnnotation currentAnnotation = list.get(0);
         log.debug("Current annotation: {}", currentAnnotation);
-        // extract filename from R
 
-        String filename = new File(result.asString()).getName();
+        // extract filename from R
+        String resultString = result.asString();
+        File resultFile = new File(resultString);
+        String filename = resultFile.getName();
 
         if (iClass.equals(GenericFileDataBinding.class) || iClass.equals(GenericFileDataWithGTBinding.class)) {
-            log.debug("Creating output with {} for file {}", iClass.getName(), filename);
+            log.debug("Creating output with {} for file {}", iClass.getName(), resultString);
             String mimeType = "application/unknown";
 
-            File resultFile = new File(filename);
             log.debug("Loading file " + resultFile.getAbsolutePath());
 
             if ( !resultFile.isAbsolute()) {
                 // relative path names are relative to R work directory
-                resultFile = new File(connection.eval("getwd()").asString(), resultFile.getName());
+                resultFile = new File(connection.eval("getwd()").asString(), filename);
             }
 
             if (resultFile.exists()) {
@@ -412,13 +438,23 @@ public class RIOHandler {
             String rType = currentAnnotation.getStringValue(RAttribute.TYPE);
             mimeType = dataTypeRegistry.getType(rType).getMimeType();
 
+            ExecutionContext execCtx = ExecutionContextFactory.getContext();
+            UUID jobId = execCtx.getJobId();
+            String pathname = jobId != null
+                ? jobId.toString().substring(0, 5) + "_" + outputFile.getName()
+                : outputFile.getName();
+
+            File copyOfFile = new File(System.getProperty("java.io.tmpdir") + File.separatorChar + pathname);
+            log.debug("Copy {} -> {}", resultFile.getAbsoluteFile(), copyOfFile.getAbsoluteFile());
+            FileUtils.copyFile(outputFile, copyOfFile);
+
             if(iClass.equals(GenericFileDataBinding.class)){
-                GenericFileData out = new GenericFileData(outputFile, mimeType);
+                GenericFileData out = new GenericFileData(copyOfFile, mimeType);
 
                 return new GenericFileDataBinding(out);
 
             }else if(iClass.equals(GenericFileDataWithGTBinding.class)){
-                GenericFileDataWithGT out = new GenericFileDataWithGT(outputFile, mimeType);
+                GenericFileDataWithGT out = new GenericFileDataWithGT(copyOfFile, mimeType);
 
                 return new GenericFileDataWithGTBinding(out);
             }

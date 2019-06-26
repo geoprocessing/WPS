@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2010-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@ package org.n52.wps.server.r.data;
 
 import org.n52.wps.io.data.GenericFileDataConstants;
 import org.n52.wps.io.data.IData;
+import org.n52.wps.io.data.binding.complex.JTSGeometryBinding;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.wps.io.data.binding.complex.GenericFileDataBinding;
 import org.n52.wps.io.data.binding.complex.GenericFileDataWithGTBinding;
@@ -68,6 +69,7 @@ public enum RDataType implements RTypeDefinition {
     // SHAPE_ZIP("shp_zip",GenericFileDataConstants.MIME_TYPE_ZIPPED_SHP,GenericFileDataBinding.class,true),
     SHAPE_ZIP2("shp_x", GenericFileDataConstants.MIME_TYPE_ZIPPED_SHP, GTVectorDataBinding.class, true, null, "base64"),
     KML("kml", GenericFileDataConstants.MIME_TYPE_KML, GenericFileDataWithGTBinding.class, true, null, "UTF-8"),
+    BBOX("bbox", GenericFileDataConstants.MIME_TYPE_GEOJSON, JTSGeometryBinding.class, true, null, "UTF-8"),
 
     // graphical data
     GIF("gif", GenericFileDataConstants.MIME_TYPE_IMAGE_GIF, GenericFileDataBinding.class, true, null, "base64"),

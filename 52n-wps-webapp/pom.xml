@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.n52.wps</groupId>
 		<artifactId>52n-wps-parent</artifactId>
-		<version>4.0.0-beta.4-SNAPSHOT</version>
+		<version>4.0.0-beta.8-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>52n-wps-webapp</artifactId>
@@ -85,13 +85,6 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>52n-wps-configuration-api</artifactId>
 		</dependency>
-
-                <!-- uncomment this to work with the wps-gitalgorithm repository -->
-                <!--<dependency>
-                    <groupId>${project.groupId}</groupId>
-                    <artifactId>52n-wps-git-algorithm-repository</artifactId>
-                    <version>${project.version}</version>
-                </dependency>-->
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -321,6 +314,11 @@
 			<artifactId>commons-fileupload</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 		<!-- Database dependencies -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -383,11 +381,6 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<artifactId>commons-httpclient</artifactId>
-			<groupId>commons-httpclient</groupId>
-            <scope>test</scope>
-		</dependency>
-		<dependency>
 			<artifactId>hamcrest-core</artifactId>
 			<groupId>org.hamcrest</groupId>
             <scope>test</scope>
@@ -402,6 +395,15 @@
 			<groupId>org.jdom</groupId>
             <scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-xml-wps-v20</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+            <groupId>se.jiderhamn.classloader-leak-prevention</groupId>
+            <artifactId>classloader-leak-prevention-servlet3</artifactId>
+         </dependency>
 	</dependencies>
 
 	<properties>

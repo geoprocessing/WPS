@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,6 +71,7 @@ import org.n52.wps.server.request.strategy.ReferenceStrategyRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.common.primitives.Doubles;
 
@@ -188,8 +189,7 @@ public class InputHandler {
                 handleComplexValueReference(input);
             }
             else {
-                throw new ExceptionReport("Error while accessing the inputValue: " + inputId,
-                        ExceptionReport.INVALID_PARAMETER_VALUE);
+                throwInvalidInputIdException(inputId);
             }
         }
         }else if(inputsV200 != null){
@@ -209,14 +209,16 @@ public class InputHandler {
                 if(input.getData() != null) {
 
                     net.opengis.wps.x20.InputDescriptionType inputDescription = XMLBeansHelper.findInputByID(inputId, processOffering.getProcess());
-
+                    if (inputDescription == null) {
+                        throwInvalidInputIdException(inputId);
+                    }
                     DataDescriptionType dataDesc = inputDescription.getDataDescription();
 
                     if(dataDesc instanceof net.opengis.wps.x20.ComplexDataType) {
                         handleComplexData(input, inputId);
                     }
                     else if(dataDesc instanceof LiteralDataType) {
-                        handleLiteralData(input);
+                        handleLiteralData(input, (LiteralDataType) dataDesc);
                     }
                     else if(dataDesc instanceof net.opengis.wps.x20.BoundingBoxDataDocument.BoundingBoxData) {
                         handleBBoxValue(input);
@@ -226,12 +228,16 @@ public class InputHandler {
                     handleComplexValueReference(input);
                 }
                 else {
-                    throw new ExceptionReport("Error while accessing the inputValue: " + inputId,
-                            ExceptionReport.INVALID_PARAMETER_VALUE);
+                    throwInvalidInputIdException(inputId);
                 }
             }
         }
 
+    }
+
+    private void throwInvalidInputIdException(String inputId) throws ExceptionReport {
+        throw new ExceptionReport("Error while accessing the inputValue: " + inputId,
+                ExceptionReport.INVALID_PARAMETER_VALUE);
     }
 
     Map<String, InterceptorInstance> resolveInputInterceptors(String algorithmClassName) {
@@ -1705,31 +1711,33 @@ public class InputHandler {
      * @param input The client's input
      * @throws ExceptionReport If the type of the parameter is invalid.
      */
-    private void handleLiteralData(DataInputType input) throws ExceptionReport {
+    private void handleLiteralData(DataInputType input, LiteralDataType inputDesc) throws ExceptionReport {
         String inputID = input.getId();
         String parameter = "";
-        LiteralValueDocument literalValueDocument = null;
+
+        String inputMimeType = input.getData().getMimeType();
+
+        Format defaultFormat = getDefaultFormat(inputDesc.getFormatArray());
+
+        String defaultMimeType = defaultFormat.getMimeType();
+
+        if (inputMimeType == null || inputMimeType.isEmpty()){
+            inputMimeType = defaultMimeType;
+        }
 
         Node dataNode = input.getData().getDomNode();
 
-        for (int i = 0; i < dataNode.getChildNodes().getLength(); i++) {
-            Node childNode = dataNode.getChildNodes().item(i);
-            String localName = childNode.getLocalName();
-                    if(childNode != null && localName!= null && localName.equals(LOCAL_NAME_LITERAL_VALUE)){
-                        try {
-                            literalValueDocument = LiteralValueDocument.Factory.parse(childNode);
-                            break;
-                        } catch (XmlException e) {
-                            LOGGER.error("Exception while trying to parse LiteralValue.", e);
-                        }
-                    }
-                }
+        if (inputMimeType != null && !inputMimeType.isEmpty()){
+            if (inputMimeType.equals("text/plain")){
+                parameter = getLiteralValueTextPlain(dataNode);
+            } else if (inputMimeType.equals("text/xml")) {
+                parameter = getLiteralValueTextXML(dataNode);
+            }
+        } else {
+            parameter = getLiteralValueTextXML(dataNode);
+        }
 
-        parameter = literalValueDocument.getLiteralValue().getStringValue();
-
-        net.opengis.wps.x20.InputDescriptionType inputDesc = XMLBeansHelper.findInputByID(inputID, processOffering.getProcess());
-
-        LiteralDataDomain literalDataDomain = ((LiteralDataType)inputDesc.getDataDescription()).getLiteralDataDomainArray(0);
+        LiteralDataDomain literalDataDomain = inputDesc.getLiteralDataDomainArray(0);
 
         net.opengis.ows.x20.DomainMetadataType dataType = literalDataDomain.getDataType();
 
@@ -1794,6 +1802,31 @@ public class InputHandler {
             inputData.put(inputID, list);
         }
 
+    }
+
+    private String getLiteralValueTextXML(Node dataNode) {
+
+        LiteralValueDocument literalValueDocument = null;
+
+        for (int i = 0; i < dataNode.getChildNodes().getLength(); i++) {
+            Node childNode = dataNode.getChildNodes().item(i);
+            String localName = childNode.getLocalName();
+                    if(childNode != null && localName!= null && localName.equals(LOCAL_NAME_LITERAL_VALUE)){
+                        try {
+                            literalValueDocument = LiteralValueDocument.Factory.parse(childNode);
+                            break;
+                        } catch (XmlException e) {
+                            LOGGER.error("Exception while trying to parse LiteralValue.", e);
+                        }
+                    }
+                }
+
+        return literalValueDocument != null ? literalValueDocument.getLiteralValue().getStringValue() : "";
+
+    }
+
+    private String getLiteralValueTextPlain(Node dataNode) {
+         return dataNode.getChildNodes().item(0).getNodeValue();
     }
 
     private boolean checkRange(IData parameterObj, RangeType allowedRange){
@@ -2441,10 +2474,15 @@ public class InputHandler {
         Node dataNode = input.getData().getDomNode();
 
         try {
-            if(dataNode.getChildNodes().getLength() > 1){
-                boundingBoxDocument = BoundingBoxDocument.Factory.parse(dataNode.getChildNodes().item(1));
-            }else{
-                boundingBoxDocument = BoundingBoxDocument.Factory.parse(input.getData().getDomNode());
+
+            NodeList childNodes = dataNode.getChildNodes();
+
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node child = childNodes.item(i);
+                if(child.getLocalName().equals("BoundingBox")){
+                    boundingBoxDocument = BoundingBoxDocument.Factory.parse(child);
+                    break;
+                }
             }
         } catch (XmlException e) {
             LOGGER.error("XmlException occurred while trying to parse bounding box: " + (boundingBoxDocument == null ? null : boundingBoxDocument.toString()), e);

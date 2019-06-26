@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 - 2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007 - 2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,7 +51,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -118,9 +117,7 @@ public class GeoserverWCSGenerator extends AbstractGeoserverWXSGenerator {
             file = (File) data.getPayload();
         }
 
-        storeName = file.getName();
-
-        storeName = storeName +"_" + UUID.randomUUID();
+        storeName = makeUniqueFileName(file.getName());
         GeoServerUploader geoserverUploader = new GeoServerUploader(username, password, host, port);
 
         String result = geoserverUploader.createWorkspace();

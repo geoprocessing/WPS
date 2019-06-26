@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -120,6 +120,7 @@ public class DefaultReferenceStrategy implements IReferenceStrategy{
         }
         catch(IOException e) {
              String inputID = input.getIdentifier();
+             logger.error("Could not resolve url for input '{}': {}", inputID, href, e);
              throw new ExceptionReport("Error occured while receiving the complexReferenceURL: inputID: " + inputID + " | dataURL: " + href,
                                      ExceptionReport.INVALID_PARAMETER_VALUE );
         }

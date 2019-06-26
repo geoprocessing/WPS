@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2010-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -152,6 +152,9 @@ public class R_Config implements ServletContextAware {
                 LOGGER.info("Configured script dir does not exist: {}", dir);
                 continue;
             }
+            if (files.length == 0) {
+                LOGGER.debug("Configured script dir is empty: {}", dir);
+            }
             for (File rScript : files) {
                 rScripts.add(rScript);
                 LOGGER.debug("Registered script: {}", rScript.getAbsoluteFile());
@@ -254,7 +257,7 @@ public class R_Config implements ServletContextAware {
     private Collection<File> resolveFilesFromResourcesOrFromWebapp(String s, Path baseDir) {
         LOGGER.debug("Loading util files from {}", s);
 
-        Path p = Paths.get(s);
+        Path p = resolvePath(s);
         if ( !baseDir.isAbsolute()) {
             throw new RuntimeException(String.format("The given basedir (%s) is not absolute, cannot resolve path %s.",
                                                      baseDir,
@@ -307,6 +310,18 @@ public class R_Config implements ServletContextAware {
         LOGGER.debug("Found {} util files in directory configured as '{}' at {}", foundFiles.size(), p, f);
 
         return foundFiles;
+    }
+
+    private Path resolvePath(String path) {
+        Path p = Paths.get(path);
+        if (Files.isSymbolicLink(p)) {
+            try {
+                p = p.toRealPath();
+            } catch (IOException e) {
+                LOGGER.error("Could not resolve symbolic link {}", path, e);
+            }
+        }
+        return p;
     }
 
     public Path getBaseDir() {

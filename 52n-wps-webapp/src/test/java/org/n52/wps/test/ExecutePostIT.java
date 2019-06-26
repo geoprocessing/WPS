@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -911,7 +911,8 @@ public class ExecutePostIT {
         }
     }
 
-    @Test
+  //TODO This test will produce binary data in the XML response, which is not feasible
+//    @Test
     public void testExecutePOSTValueComplexBinarySynchronousBinaryOutputNoEncoding() throws IOException, ParserConfigurationException, SAXException {
         System.out.println("\nRunning testExecutePOSTValueComplexBinarySynchronousBinaryOutputNoEncoding");
 
@@ -1019,7 +1020,8 @@ public class ExecutePostIT {
         }
     }
 
-    @Test
+  //TODO This test will produce binary data in the XML response, which is not feasible
+//    @Test
     public void testExecutePOSTValueComplexBinarySynchronousBinaryOutputStatusNoEncoding() throws ParserConfigurationException, SAXException, IOException {
         System.out.println("\nRunning testExecutePOSTValueComplexBinarySynchronousBinaryOutputStatusNoEncoding");
 
@@ -1127,7 +1129,8 @@ public class ExecutePostIT {
         }
     }
 
-    @Test
+  //TODO This test will produce binary data in the XML response, which is not feasible
+//    @Test
     public void testExecutePOSTValueComplexBinaryASynchronousBinaryOutputStoreNoEncoding() throws IOException, ParserConfigurationException, SAXException {
         System.out.println("\nRunning testExecutePOSTValueComplexBinaryASynchronousBinaryOutputStoreNoEncoding");
 
@@ -1235,7 +1238,8 @@ public class ExecutePostIT {
         }
     }
 
-    @Test
+    //TODO This test will produce binary data in the XML response, which is not feasible
+//    @Test
     public void testExecutePOSTValueComplexBinaryASynchronousBinaryOutputStoreStatusNoEncoding() throws IOException, ParserConfigurationException, SAXException {
         System.out.println("\nRunning testExecutePOSTValueComplexBinaryASynchronousBinaryOutputStoreStatusNoEncoding");
 

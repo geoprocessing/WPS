@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2006-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,6 +36,7 @@ public class ExecutionContextFactory {
         synchronized (threadContexts) {
             executionContext = threadContexts.get();
             if (executionContext == null && fallBackToDefault) {
+                log.debug("No execution context bound to thread. Returning default context.");
                 executionContext = getDefault();
             }
         }

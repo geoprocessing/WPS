@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2006-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -56,6 +56,8 @@ public class ExceptionReport extends Exception {
     public static final String FILE_SIZE_EXCEEDED = "FileSizeExceeded";
     /** An error occurs during remote and distributed computation process. */
     public static final String REMOTE_COMPUTATION_ERROR = "RemoteComputationError";
+    /** WPS 2.0 async execute, result is not available yet  */
+    public static final String RESULT_NOT_READY = "ResultNotReady";
 
 
     /** A GetStatus request was send with a JobID of a synchronous job, or if the JobID doesn't exist at all. */
@@ -112,8 +114,8 @@ public class ExceptionReport extends Exception {
 
         // Printing service Exception
         net.opengis.ows.x20.ExceptionReportDocument reportV200 = net.opengis.ows.x20.ExceptionReportDocument.Factory.newInstance();
-        XMLBeansHelper.addSchemaLocationToXMLObject(reportV200, "http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsAll.xsd");
         net.opengis.ows.x20.ExceptionReportDocument.ExceptionReport exceptionReportV200 = reportV200.addNewExceptionReport();
+        XMLBeansHelper.addSchemaLocationToXMLObject(reportV200, "http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsAll.xsd");
         exceptionReportV200.setVersion(WPSConfig.VERSION_200);
         net.opengis.ows.x20.ExceptionType exV200 = exceptionReportV200.addNewException();
         exV200.setExceptionCode(errorKey);
@@ -140,6 +142,7 @@ public class ExceptionReport extends Exception {
         // Printing service Exception
         ExceptionReportDocument report = ExceptionReportDocument.Factory.newInstance();
         net.opengis.ows.x11.ExceptionReportDocument.ExceptionReport exceptionReport = report.addNewExceptionReport();
+        XMLBeansHelper.addSchemaLocationToXMLObject(report, "http://www.opengis.net/ows/1.1 http://schemas.opengis.net/ows/1.1.0/owsAll.xsd");
         exceptionReport.setVersion(WPSConfig.VERSION_100);
         ExceptionType ex = exceptionReport.addNewException();
         ex.setExceptionCode(errorKey);
@@ -181,6 +184,9 @@ public class ExceptionReport extends Exception {
             return HttpServletResponse.SC_BAD_REQUEST;
 
         case NO_SUCH_JOB:
+            return HttpServletResponse.SC_BAD_REQUEST;
+
+        case RESULT_NOT_READY:
             return HttpServletResponse.SC_BAD_REQUEST;
 
         case NO_APPLICABLE_CODE:

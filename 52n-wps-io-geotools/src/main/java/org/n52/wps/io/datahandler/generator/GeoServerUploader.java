@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 - 2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007 - 2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -60,8 +61,13 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeoServerUploader {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GeoServerUploader.class);
 
     private String username;
     private String password;
@@ -76,23 +82,22 @@ public class GeoServerUploader {
         this.port = port;
     }
 
-    public String uploadGeotiff(File file, String storeName)
-            throws HttpException, IOException {
-        String target = "http://" + host + ":" + port
-                + "/geoserver/rest/workspaces/N52/coveragestores/" + storeName
-                + "/external.geotiff?configure=first&coverageName=" + storeName;
-        String request;
-        if (file.getAbsolutePath().startsWith("/")) { // tried with
-                                                        // request.replaceAll("//","/");
-                                                        // but didn't seem to
-                                                        // work...
-            request = "file:" + file.getAbsolutePath();
-        } else {
-            request = "file:/" + file.getAbsolutePath();
-        }
-        String result = sendRasterRequest(target, request, "PUT", username,
-                password);
-        return result;
+    public String uploadGeotiff(File file, String layerName) throws HttpException, IOException {
+
+        File copyOfFile = new File(System.getProperty("java.io.tmpdir") + File.separatorChar + layerName);
+        LOG.debug("Copy {} -> {}", file.getAbsoluteFile(), copyOfFile.getAbsoluteFile());
+        FileUtils.copyFile(file, copyOfFile);
+
+        String target = "http://" + host + ":" + port + "/geoserver/rest/workspaces/N52/coveragestores/" + layerName
+                + "/external.geotiff?configure=first&coverageName=" + layerName;
+        LOG.debug("Uploading GeoTiff {} via {}", copyOfFile.getAbsoluteFile(), target);
+
+        // request.replaceAll("//", "/") but does not seem to work
+        String request = copyOfFile.getAbsolutePath().startsWith("/")
+            ? "file:" + copyOfFile.getAbsolutePath()
+            : "file:/" + copyOfFile.getAbsolutePath();
+
+        return sendRasterRequest(target, request, "PUT", username, password);
     }
 
     public String uploadShp(File file, String storeName) throws HttpException,

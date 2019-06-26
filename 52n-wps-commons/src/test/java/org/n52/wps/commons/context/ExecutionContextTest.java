@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2006-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,12 @@ package org.n52.wps.commons.context;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -68,29 +71,33 @@ public class ExecutionContextTest {
 
         ExecutionContext ec;
 
-        ec = new ExecutionContext((OutputDefinitionType)null);
-        assertNotNull(ec.getOutputs());
-        assertEquals(0, ec.getOutputs().size());
+        OutputTypeWrapper outputTypeWrapper = new OutputTypeWrapper();
 
-        ec = new ExecutionContext(Arrays.asList(new OutputDefinitionType[0]));
-        assertNotNull(ec.getOutputs());
-        assertEquals(0, ec.getOutputs().size());
 
-        ec = new ExecutionContext(Arrays.asList(new OutputDefinitionType[1]));
+        ec = new ExecutionContext((OutputTypeWrapper)null, null);
         assertNotNull(ec.getOutputs());
-        assertEquals(1, ec.getOutputs().size());
+        assertEquals(0, ec.getOutputs().getWps100OutputDefinitionTypes().size());
+        assertNull(ec.getJobId());
 
-        ec = new ExecutionContext((List<OutputDefinitionType>)null);
-        assertNotNull(ec.getOutputs());
-        assertEquals(0, ec.getOutputs().size());
+        outputTypeWrapper.setWps100OutputDefinitionTypes(new ArrayList<>(0));
 
-        ec = new ExecutionContext(OutputDefinitionType.Factory.newInstance());
+        UUID jobId = UUID.randomUUID();
+        ec = new ExecutionContext(outputTypeWrapper, jobId);
         assertNotNull(ec.getOutputs());
-        assertEquals(1, ec.getOutputs().size());
+        assertEquals(0, ec.getOutputs().getWps100OutputDefinitionTypes().size());
+        assertEquals(jobId, ec.getJobId());
+
+        outputTypeWrapper = new OutputTypeWrapper();
+
+        outputTypeWrapper.setWps100OutputDefinitionTypes(Arrays.asList(new OutputDefinitionType[1]));
+
+        ec = new ExecutionContext(outputTypeWrapper, jobId);
+        assertNotNull(ec.getOutputs());
+        assertEquals(1, ec.getOutputs().getWps100OutputDefinitionTypes().size());
 
         ec = new ExecutionContext();
         assertNotNull(ec.getOutputs());
-        assertEquals(0, ec.getOutputs().size());
+        assertEquals(0, ec.getOutputs().getWps100OutputDefinitionTypes().size());
     }
 
 

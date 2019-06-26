@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -119,7 +119,11 @@ public class ProcessDescription {
                 processDescription.addNewAbstract().setStringValue(processDescriptionV100.getAbstract().getStringValue());
             }
 
-            InputDescriptionType[] inputDescriptionTypes = processDescriptionV100.getDataInputs().getInputArray();
+            InputDescriptionType[] inputDescriptionTypes = new InputDescriptionType[]{};
+
+            if(processDescriptionV100.getDataInputs() != null){
+                inputDescriptionTypes = processDescriptionV100.getDataInputs().getInputArray();
+            }
 
             for (InputDescriptionType inputDescriptionType : inputDescriptionTypes) {
 

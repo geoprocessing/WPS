@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2006-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,38 +16,37 @@
  */
 package org.n52.wps.commons.context;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.File;
 import java.util.UUID;
-
-import net.opengis.wps.x100.OutputDefinitionType;
 
 public class ExecutionContext {
 
+    private UUID jobId;
+    private final OutputTypeWrapper outputDefinitionTypes;
     private String tempFolderName;
-    private List<OutputDefinitionType> outputDefinitionTypes;
 
     public ExecutionContext() {
-        this(Arrays.asList(new OutputDefinitionType[0]));
+        this(new OutputTypeWrapper(), null);
     }
 
-    public ExecutionContext(OutputDefinitionType output) {
-        this(Arrays.asList(output != null ? new OutputDefinitionType[] {output} : new OutputDefinitionType[0]));
+    public ExecutionContext(UUID jobId) {
+        this(new OutputTypeWrapper(), jobId);
     }
 
-    public ExecutionContext(List< ? extends OutputDefinitionType> outputs) {
-        this.tempFolderName = UUID.randomUUID().toString();
-        this.outputDefinitionTypes = Collections.unmodifiableList(outputs != null ? outputs
-                                                                                 : Arrays.asList(new OutputDefinitionType[0]));
+    public ExecutionContext(OutputTypeWrapper output, UUID jobId) {
+        this.outputDefinitionTypes = output == null ? new OutputTypeWrapper() : output;
+        this.jobId = jobId;
+    }
+
+    public UUID getJobId() {
+        return jobId;
     }
 
     public String getTempDirectoryPath() {
-
-        return System.getProperty("java.io.tmpdir") + this.tempFolderName;
+        return System.getProperty("java.io.tmpdir") + File.separatorChar + this.tempFolderName;
     }
 
-    public List<OutputDefinitionType> getOutputs() {
+    public OutputTypeWrapper getOutputs() {
         return this.outputDefinitionTypes;
     }
 }

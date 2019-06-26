@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,18 +29,20 @@
 package org.n52.wps.server.request;
 
 import java.io.IOException;
-
-import net.opengis.wps.x20.GetResultDocument;
-import net.opengis.wps.x20.ResultDocument;
+import java.io.InputStream;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.n52.wps.server.ExceptionReport;
 import org.n52.wps.server.database.DatabaseFactory;
+import org.n52.wps.server.response.ExecuteResponseBuilderV200.Status;
 import org.n52.wps.server.response.GetResultResponseV200;
 import org.n52.wps.server.response.Response;
 import org.w3c.dom.Document;
+
+import net.opengis.wps.x20.GetResultDocument;
+import net.opengis.wps.x20.StatusInfoDocument;
 
 public class GetResultRequestV200 extends Request {
 
@@ -79,9 +81,19 @@ public class GetResultRequestV200 extends Request {
     @Override
     public Response call() throws ExceptionReport {
         try {
-            document = XmlObject.Factory.parse(DatabaseFactory.getDatabase().lookupResponse(jobID));
+            InputStream xml = DatabaseFactory.getDatabase().lookupResponse(jobID);
+            document = XmlObject.Factory.parse(xml);
+
+            if(document instanceof StatusInfoDocument){
+                StatusInfoDocument statusInfoDocument = (StatusInfoDocument)document;
+                String status = statusInfoDocument.getStatusInfo().getStatus();
+                if(status.equals(Status.Running.toString()) || status.equals(Status.Accepted.toString())){
+                    throw new ExceptionReport("Result not ready.", ExceptionReport.RESULT_NOT_READY, "jobID=" + jobID);
+                }
+            }
+
         } catch (XmlException | IOException e) {
-            LOGGER.error("Could not parse StatusinfoDocument looked up in database.");
+            LOGGER.error("Could not parse result looked up in database.", e);
         }
 
         return new GetResultResponseV200(this);

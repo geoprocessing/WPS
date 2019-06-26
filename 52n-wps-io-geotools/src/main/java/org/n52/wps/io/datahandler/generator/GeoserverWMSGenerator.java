@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 - 2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007 - 2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,26 +45,28 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  */
+
 package org.n52.wps.io.datahandler.generator;
 
+import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.httpclient.HttpException;
-import org.n52.wps.commons.XMLUtil;
+import org.geotools.coverage.grid.GridCoverage2D;
 import org.n52.wps.io.data.GenericFileDataWithGT;
 import org.n52.wps.io.data.IData;
 import org.n52.wps.io.data.binding.complex.GTRasterDataBinding;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
+import org.n52.wps.io.data.binding.complex.GenericFileDataWithGTBinding;
 import org.n52.wps.io.data.binding.complex.GeotiffBinding;
 import org.n52.wps.io.data.binding.complex.ShapefileBinding;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -80,6 +82,7 @@ public class GeoserverWMSGenerator extends AbstractGeoserverWXSGenerator {
         this.supportedIDataTypes.add(ShapefileBinding.class);
         this.supportedIDataTypes.add(GeotiffBinding.class);
         this.supportedIDataTypes.add(GTVectorDataBinding.class);
+        this.supportedIDataTypes.add(GenericFileDataWithGTBinding.class);
     }
 
     @Override
@@ -87,12 +90,8 @@ public class GeoserverWMSGenerator extends AbstractGeoserverWXSGenerator {
 
         InputStream stream = null;
         try {
-            Document doc = storeLayer(data);
-            String xmlString = XMLUtil.nodeToString(doc);
-            stream = new ByteArrayInputStream(xmlString.getBytes("UTF-8"));
-        } catch(TransformerException e){
-            LOGGER.error("Error generating WMS output. Reason: ", e);
-            throw new RuntimeException("Error generating WMS output. Reason: " + e);
+            String getMapURL = storeLayer(data);
+            stream = new ByteArrayInputStream(getMapURL.getBytes("UTF-8"));
         } catch (IOException e) {
             LOGGER.error("Error generating WMS output. Reason: ", e);
             throw new RuntimeException("Error generating WMS output. Reason: " + e);
@@ -103,10 +102,10 @@ public class GeoserverWMSGenerator extends AbstractGeoserverWXSGenerator {
         return stream;
     }
 
-    private Document storeLayer(IData coll) throws HttpException, IOException, ParserConfigurationException{
+    private String storeLayer(IData coll) throws HttpException, IOException, ParserConfigurationException {
         File file = null;
-        String storeName = "";
-        if(coll instanceof GTVectorDataBinding){
+        String layerName = "";
+        if (coll instanceof GTVectorDataBinding) {
             GTVectorDataBinding gtData = (GTVectorDataBinding) coll;
 
             try {
@@ -117,57 +116,101 @@ public class GeoserverWMSGenerator extends AbstractGeoserverWXSGenerator {
                 throw new RuntimeException("Error generating shp file for storage in WFS. Reason: " + e1);
             }
 
-            //zip shp file
+            // zip shp file
             String path = file.getAbsolutePath();
             String baseName = path.substring(0, path.length() - ".shp".length());
             File shx = new File(baseName + ".shx");
             File dbf = new File(baseName + ".dbf");
             File prj = new File(baseName + ".prj");
-            File zipped =org.n52.wps.io.IOUtils.zip(file, shx, dbf, prj);
+            File zipped = org.n52.wps.io.IOUtils.zip(file, shx, dbf, prj);
 
             file = zipped;
 
         }
-        if(coll instanceof GTRasterDataBinding){
+        if (coll instanceof GTRasterDataBinding) {
             GTRasterDataBinding gtData = (GTRasterDataBinding) coll;
             GenericFileDataWithGT fileData = new GenericFileDataWithGT(gtData.getPayload(), null);
             file = fileData.getBaseFile(true);
 
         }
-        if(coll instanceof ShapefileBinding){
+        if (coll instanceof ShapefileBinding) {
             ShapefileBinding data = (ShapefileBinding) coll;
             file = data.getZippedPayload();
 
         }
-        if(coll instanceof GeotiffBinding){
+        if (coll instanceof GeotiffBinding) {
             GeotiffBinding data = (GeotiffBinding) coll;
             file = (File) data.getPayload();
         }
-        storeName = file.getName();
+        if (coll instanceof GenericFileDataWithGTBinding) {
+            file = ((GenericFileDataWithGTBinding) coll).getPayload().getBaseFile(true);
+        }
 
-        storeName = storeName +"_" + UUID.randomUUID();
+        layerName = makeUniqueFileName(file.getName());
         GeoServerUploader geoserverUploader = new GeoServerUploader(username, password, host, port);
+
+        int width = 0;
+        int height = 0;
+
+        String bboxString = "";
+        String srsString = "";
 
         String result = geoserverUploader.createWorkspace();
         LOGGER.debug(result);
-        if(coll instanceof GTVectorDataBinding){
-            result = geoserverUploader.uploadShp(file, storeName);
+        if (coll instanceof GTVectorDataBinding) {
+            result = geoserverUploader.uploadShp(file, layerName);
         }
-        if(coll instanceof GTRasterDataBinding){
-            result = geoserverUploader.uploadGeotiff(file, storeName);
+        if (coll instanceof GTRasterDataBinding) {
+            result = geoserverUploader.uploadGeotiff(file, layerName);
+
+            GridCoverage2D gridCoverage2D = ((GTRasterDataBinding) coll).getPayload();
+
+            Rectangle2D bounds = gridCoverage2D.getEnvelope2D().getBounds();
+
+            double minX = bounds.getMinX();
+            double maxX = bounds.getMaxX();
+            double minY = bounds.getMinY();
+            double maxY = bounds.getMaxY();
+
+            bboxString = minX + "," + minY + "," + maxX + "," + maxY;
+
+            ReferenceIdentifier srsIdentifier = null;
+
+            try {
+
+                srsIdentifier = gridCoverage2D.getEnvelope2D()
+                                              .getCoordinateReferenceSystem()
+                                              .getCoordinateSystem()
+                                              .getIdentifiers()
+                                              .iterator()
+                                              .next();
+
+            } catch (Exception e) {
+                LOGGER.info("Could not get CRS from grid.");
+            }
+
+            srsString = srsIdentifier.getCodeSpace() + ":" + srsIdentifier.getCode();
+
+            width = gridCoverage2D.getRenderedImage().getWidth();
+            height = gridCoverage2D.getRenderedImage().getHeight();
+        }
+        if (coll instanceof GenericFileDataWithGTBinding) {// TODO, could also be a shapefile
+            result = geoserverUploader.uploadGeotiff(file, layerName);
         }
 
         LOGGER.debug(result);
 
-        String capabilitiesLink = "http://"+host+":"+port+"/geoserver/wms?Service=WMS&Request=GetCapabilities&Version=1.1.1";
-        //String directLink = geoserverBaseURL + "?Service=WMS&Request=GetMap&Version=1.1.0&Layers=N52:"+wmsLayerName+"&WIDTH=300&HEIGHT=300";;
+        String getMapLink = "http://" + host + ":" + port
+                + "/geoserver/wms?Service=WMS&Request=GetMap&Version=1.1.1&layers=" + "N52:" + layerName + "&width="
+                + width + "&height=" + height + "&format=image/png" + "&bbox=" + bboxString + "&srs=" + srsString;
+        // String directLink = geoserverBaseURL +
+        // "?Service=WMS&Request=GetMap&Version=1.1.0&Layers=N52:"+wmsLayerName+"&WIDTH=300&HEIGHT=300";;
 
-        Document doc = createXML("N52:"+storeName, capabilitiesLink);
-        return doc;
+        return getMapLink;
 
     }
 
-    private Document createXML(String layerName, String getCapabilitiesLink) throws ParserConfigurationException{
+    private Document createXML(String layerName, String getCapabilitiesLink) throws ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document doc = factory.newDocumentBuilder().newDocument();
 
@@ -182,10 +225,10 @@ public class GeoserverWMSGenerator extends AbstractGeoserverWXSGenerator {
         getCapabilitiesLinkElement.appendChild(doc.createTextNode(getCapabilitiesLink));
         root.appendChild(getCapabilitiesLinkElement);
         /*
-        Element directResourceLinkElement = doc.createElement("DirectResourceLink");
-        directResourceLinkElement.appendChild(doc.createTextNode(getMapRequest));
-        root.appendChild(directResourceLinkElement);
-        */
+         * Element directResourceLinkElement = doc.createElement("DirectResourceLink");
+         * directResourceLinkElement.appendChild(doc.createTextNode(getMapRequest));
+         * root.appendChild(directResourceLinkElement);
+         */
         doc.appendChild(root);
 
         return doc;

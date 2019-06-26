@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,7 +84,8 @@ public class GetStatusRequestV200 extends Request {
         try {
             document = StatusInfoDocument.Factory.parse(DatabaseFactory.getDatabase().lookupStatus(jobID));
         } catch (XmlException | IOException e) {
-            LOGGER.error("Could not parse StatusinfoDocument looked up in database.");
+            LOGGER.info("No such job: " + jobID);
+            throw new ExceptionReport("Job doesn't exist.", ExceptionReport.NO_SUCH_JOB, "jobID=" + jobID);
         }
 
         return new GetStatusResponseV200(this);

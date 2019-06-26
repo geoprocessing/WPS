@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,9 +46,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import net.opengis.ows.x20.ExceptionReportDocument;
-import net.opengis.wps.x20.ResultDocument;
-import net.opengis.wps.x20.StatusInfoDocument;
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.xmlbeans.XmlException;
@@ -63,6 +61,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+
+import net.opengis.wps.x20.StatusInfoDocument;
 
 /*
  * @author tkunicki (Thomas Kunicki, USGS)
@@ -396,8 +396,9 @@ public final class FlatFileDatabase implements IDatabase {
                 // to a temp file and rename these when completed. Large responses
                 // can cause the call below to take a significant amount of time.
                 XMLUtil.copyXML(responseInputStream, responseOutputStream, indentXML);
-            }
-            finally {
+            }catch(XMLStreamException e){
+                LOGGER.info("Could not store XML response for job: " +id);
+            }finally {
                 IOUtils.closeQuietly(responseInputStream);
                 IOUtils.closeQuietly(responseOutputStream);
             }
@@ -411,9 +412,6 @@ public final class FlatFileDatabase implements IDatabase {
 
         }
         catch (FileNotFoundException e) {
-            throw new RuntimeException("Error storing response for " + id, e);
-        }
-        catch (IOException e) {
             throw new RuntimeException("Error storing response for " + id, e);
         }
     }
@@ -513,7 +511,7 @@ public final class FlatFileDatabase implements IDatabase {
 
                 if (object instanceof StatusInfoDocument) {
                     return object.newInputStream();
-                } else if (object instanceof ResultDocument || object instanceof ExceptionReportDocument) {
+                } else {
 
                     LOGGER.info("Last response file not of type status info document.");
 

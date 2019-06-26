@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,8 +27,6 @@
  * Public License for more details.
  */
 package org.n52.wps.server.database;
-
-import static org.n52.wps.server.database.AbstractDatabase.getDatabaseProperties;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -63,12 +61,11 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.n52.wps.commons.PropertyUtil;
 import org.n52.wps.commons.WPSConfig;
 import org.n52.wps.webapp.entities.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 
@@ -106,6 +103,9 @@ public class PostgresDatabase extends AbstractDatabase {
             + "RESPONSE_MIMETYPE VARCHAR(100))";
     protected final Object storeResponseSerialNumberLock;
     protected final Timer wipeTimer;
+
+    // If the delimiter changes, examine Patterns below.
+    private final static Joiner JOINER = Joiner.on(".");
 
     private PostgresDatabase() {
         try {
@@ -222,6 +222,15 @@ public class PostgresDatabase extends AbstractDatabase {
     @Override
     public synchronized String insertResponse(String id, InputStream inputStream) {
         return insertResultEntity(inputStream, id, "ExecuteResponse", "text/xml");
+    }
+
+    @Override
+    public synchronized String storeComplexValue(String id,
+        InputStream stream,
+        String type,
+        String mimeType) {
+        id = JOINER.join(id, UUID.randomUUID().toString());
+        return super.storeComplexValue(id, stream, type, mimeType);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,8 +29,10 @@
 package org.n52.wps.server.request;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.xmlbeans.XmlException;
@@ -38,6 +40,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.n52.wps.commons.WPSConfig;
 import org.n52.wps.commons.context.ExecutionContext;
 import org.n52.wps.commons.context.ExecutionContextFactory;
+import org.n52.wps.commons.context.OutputTypeWrapper;
 import org.n52.wps.io.data.IComplexData;
 import org.n52.wps.io.data.IData;
 import org.n52.wps.server.ExceptionReport;
@@ -55,6 +58,7 @@ import org.w3c.dom.Document;
 
 import net.opengis.ows.x20.ExceptionReportDocument;
 import net.opengis.ows.x20.ExceptionType;
+import net.opengis.wps.x100.OutputDefinitionType;
 import net.opengis.wps.x20.DataInputType;
 import net.opengis.wps.x20.ExecuteDocument;
 import net.opengis.wps.x20.ExecuteRequestType;
@@ -172,15 +176,18 @@ public class ExecuteRequestV200 extends ExecuteRequest implements IObserver {
         IAlgorithm algorithm = null;
         Map<String, List<IData>> inputMap = null;
         try {
-            //TODO add outputs to execution context
-            ExecutionContext context = new ExecutionContext();
 
-            // register so that any function that calls
-            // ExecuteContextFactory.getContext() gets the instance registered
-            // with this thread
+            OutputTypeWrapper outputTypeWrapper = new OutputTypeWrapper();
+            outputTypeWrapper.setWps200OutputDefinitionTypes(Arrays.asList(getExecute().getOutputArray()));
+
+            UUID jobId = getUniqueId();
+            LOGGER.debug("Starting execution of job with id {}", jobId.toString());
+
+            // Create and register context so that any function that calls
+            // ExecuteContextFactory.getContext() gets the instance bound
+            // to this thread
+            ExecutionContext context = new ExecutionContext(outputTypeWrapper, jobId);
             ExecutionContextFactory.registerContext(context);
-
-            LOGGER.debug("started with execution");
 
             updateStatusStarted();
 
@@ -356,8 +363,9 @@ public class ExecuteRequestV200 extends ExecuteRequest implements IObserver {
         InputStream is = null;
         try {
             is = executeDocument.newInputStream();
-            DatabaseFactory.getDatabase().insertRequest(
-                    getUniqueId().toString(), is, true);
+            String jobId = getUniqueId().toString();
+            LOGGER.debug("Storing request with jobID {}", jobId);
+            DatabaseFactory.getDatabase().insertRequest(jobId, is, true);
         } catch (Exception e) {
             LOGGER.error("Exception storing ExecuteRequest", e);
         } finally {

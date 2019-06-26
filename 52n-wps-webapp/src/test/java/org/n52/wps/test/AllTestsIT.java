@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -161,8 +161,7 @@ public class AllTestsIT {
         assertThat(response, response, not(containsString("ExceptionReport")));
         assertThat(response, response, containsString("statusLocation"));
 
-        Document doc;
-        doc = AllTestsIT.parseXML(response);
+        Document doc = AllTestsIT.parseXML(response);
 
         NodeList executeResponse = doc.getElementsByTagName("wps:ExecuteResponse");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007-2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,11 +31,7 @@ package org.n52.wps.server.request;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-
 import org.apache.commons.collections.map.CaseInsensitiveMap;
-import org.apache.xmlbeans.XmlCursor;
 import org.n52.wps.commons.WPSConfig;
 import org.n52.wps.commons.XMLBeansHelper;
 import org.n52.wps.server.ExceptionReport;
@@ -165,8 +161,12 @@ public class DescribeProcessRequestV200 extends Request {
                                             ExceptionReport.INVALID_PARAMETER_VALUE,
                                             "identifier");
             }
-            ProcessOffering offering = (ProcessOffering) RepositoryManagerSingletonWrapper.getInstance().getProcessDescription(algorithmName).getProcessDescriptionType(WPSConfig.VERSION_200);
-            processOfferings.add(offering);
+            try {
+                ProcessOffering offering = (ProcessOffering) RepositoryManagerSingletonWrapper.getInstance().getProcessDescription(algorithmName).getProcessDescriptionType(WPSConfig.VERSION_200);
+                processOfferings.add(offering);
+            } catch (Exception e) {
+                LOGGER.warn("Could not get process description for algorithm: " + algorithmName, e);
+            }
         }
         document.getProcessOfferings().setProcessOfferingArray(processOfferings.toArray(new ProcessOffering[identifiers.length]));
 

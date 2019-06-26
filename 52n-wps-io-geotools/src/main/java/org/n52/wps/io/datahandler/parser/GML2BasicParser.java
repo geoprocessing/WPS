@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 - 2017 52°North Initiative for Geospatial Open Source
+ * Copyright (C) 2007 - 2018 52°North Initiative for Geospatial Open Source
  * Software GmbH
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,6 +52,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -272,6 +273,7 @@ public class GML2BasicParser extends AbstractParser {
             factory.newSAXParser().parse(new FileInputStream(file),
                     (DefaultHandler) handler);
             String schemaUrl = handler.getSchemaUrl();
+            schemaUrl = URLDecoder.decode(schemaUrl, "UTF-8");
             String namespaceURI = handler.getNameSpaceURI();
             return new QName(namespaceURI, schemaUrl);
 
